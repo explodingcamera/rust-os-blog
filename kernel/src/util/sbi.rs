@@ -1,4 +1,5 @@
 use alloc::{ffi::CString, vec, vec::Vec};
+use sbi::PhysicalAddress;
 
 pub fn debug_write(t: &[u8]) {
     let num_bytes = t.len();
@@ -12,13 +13,10 @@ pub fn debug_write(t: &[u8]) {
         let error: isize;
         let value: usize;
 
-        core::arch::asm!(
-            "ecall",
-            inlateout("a0") num_bytes => error,
-            inlateout("a1") base_addr_lo => value,
-            in("a2") base_addr_hi,
-            in("a6") 0x0,
-            in("a7") 0x4442434E,
+        let _ = sbi::debug_console::write(
+            PhysicalAddress::new(base_addr_lo),
+            PhysicalAddress::new(base_addr_hi),
+            num_bytes,
         );
     }
 }
@@ -35,13 +33,10 @@ pub fn debug_read(num_bytes: usize) -> Option<Vec<u8>> {
         let error: isize;
         let value: usize;
 
-        core::arch::asm!(
-            "ecall",
-            inlateout("a0") num_bytes => error,
-            inlateout("a1") base_addr_lo => value,
-            in("a2") base_addr_hi,
-            in("a6") 0x1,
-            in("a7") 0x4442434E,
+        let _ = sbi::debug_console::read(
+            PhysicalAddress::new(base_addr_lo),
+            PhysicalAddress::new(base_addr_hi),
+            num_bytes,
         );
     }
 

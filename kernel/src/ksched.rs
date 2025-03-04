@@ -1,5 +1,5 @@
 use alloc::{vec, vec::Vec};
-use pasts::{prelude::*, Executor, Loop};
+use pasts::{Executor, Loop, prelude::*};
 
 use crate::println;
 

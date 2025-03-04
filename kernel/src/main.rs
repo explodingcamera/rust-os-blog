@@ -24,10 +24,12 @@ use tasks::Fuse;
 // this is called by each hart before the kernel is initialized
 #[pre_init]
 unsafe fn pre_init() {
-    // enable supervisor interrupt
-    riscv::register::sstatus::set_sie();
-    // enable supervisor timer interrupt
-    riscv::register::sie::set_stimer();
+    unsafe {
+        // enable supervisor interrupt
+        riscv::register::sstatus::set_sie();
+        // enable supervisor timer interrupt
+        riscv::register::sie::set_stimer();
+    }
 }
 
 // the entry point of the kernel, this is only called by hart 0.

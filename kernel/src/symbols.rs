@@ -1,6 +1,6 @@
 #![allow(non_snake_case, dead_code)]
 
-extern "C" {
+unsafe extern "C" {
     static _stext: u8;
 
     static _stack_start: u8;

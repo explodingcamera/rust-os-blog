@@ -6,12 +6,12 @@ use crate::{
     util::{sstc, Result},
 };
 
-pub unsafe fn init_timer_interrupt() {
+pub unsafe fn init_timer_interrupt() { unsafe {
     use riscv::register::sie;
 
     // enable supervisor timer interrupt
     sie::set_stimer();
-}
+}}
 
 // get the current time in milliseconds
 pub fn get_time() -> Result<u64> {
