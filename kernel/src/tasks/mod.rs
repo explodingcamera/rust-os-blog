@@ -1,4 +1,4 @@
-pub use pasts::{prelude::Fuse, Executor, Loop};
+pub use pasts::{Executor, Loop, prelude::Fuse};
 
 mod shell;
 pub use shell::shell_task;

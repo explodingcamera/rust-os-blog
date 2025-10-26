@@ -1,6 +1,6 @@
 [package]
 description="A simple no_std shell for embedded systems"
-edition="2021"
+edition="2024"
 homepage="https://github.com/explodingcamera/pogos/tree/main/crates/simple-shell"
 license="MIT OR Apache-2.0"
 name="simple-shell"

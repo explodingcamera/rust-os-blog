@@ -18,7 +18,7 @@ impl DeviceTree {
         self.start() + self.0.buf().len()
     }
 
-    pub fn get_node(&self, name: &str) -> Result<DevTreeNode> {
+    pub fn get_node(&self, name: &str) -> Result<DevTreeNode<'_, '_>> {
         self.0
             .nodes()
             .find(|prop| Ok(prop.name() == Ok(name)))
@@ -35,11 +35,11 @@ impl DeviceTree {
 }
 
 trait GetProp {
-    fn get_prop(&self, name: &str) -> Result<DevTreeProp>;
+    fn get_prop(&self, name: &str) -> Result<DevTreeProp<'_, '_>>;
 }
 
 impl GetProp for DevTreeNode<'_, '_> {
-    fn get_prop(&self, name: &str) -> Result<DevTreeProp> {
+    fn get_prop(&self, name: &str) -> Result<DevTreeProp<'_, '_>> {
         let prop = self
             .props()
             .find(|prop| Ok(prop.name() == Ok(name)))

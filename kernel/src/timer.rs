@@ -1,17 +1,9 @@
 use riscv::register::{sip, stvec, time};
-use riscv_rt::pre_init;
 
 use crate::{
     println,
-    util::{sstc, Result},
+    util::{Result, sstc},
 };
-
-pub unsafe fn init_timer_interrupt() { unsafe {
-    use riscv::register::sie;
-
-    // enable supervisor timer interrupt
-    sie::set_stimer();
-}}
 
 // get the current time in milliseconds
 pub fn get_time() -> Result<u64> {

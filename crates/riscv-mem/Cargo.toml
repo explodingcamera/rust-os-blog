@@ -10,5 +10,5 @@ name="riscv_mem"
 path="src/lib.rs"
 
 [dependencies]
-bitflags="2.5"
-riscv="0.13"
+bitflags="2.10"
+riscv="0.15"

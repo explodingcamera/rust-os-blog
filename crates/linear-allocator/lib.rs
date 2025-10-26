@@ -40,7 +40,7 @@ unsafe impl GlobalAlloc for LinearAllocator {
 
         // Align the head to the required alignment
         // e.g. if head is 1 and align is 4, we need to add 3 to head to get 4
-        if head % align != 0 {
+        if !head.is_multiple_of(align) {
             head += align - (head % align);
         }
 
