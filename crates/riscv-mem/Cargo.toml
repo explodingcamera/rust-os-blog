@@ -11,4 +11,4 @@ path="src/lib.rs"
 
 [dependencies]
 bitflags="2.10"
-riscv="0.15"
+riscv="0.16"

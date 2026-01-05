@@ -2,7 +2,7 @@ use alloc::sync::Arc;
 use alloc::vec::Vec;
 use fdt_rs::base::*;
 use fdt_rs::prelude::*;
-use spin::once::Once;
+use spin::Once;
 
 use crate::println;
 use crate::util::Result;
