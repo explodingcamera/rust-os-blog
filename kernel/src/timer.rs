@@ -18,6 +18,5 @@ pub fn get_time() -> Result<u64> {
 pub fn set_interrupt(time: usize) -> Result<()> {
     // sbi::timer::set_timer(time).map_err(|_| "set timer failed")
     sstc::write(time::read() + time);
-
     Ok(())
 }

@@ -107,7 +107,7 @@ pub fn create_shell<'a>() -> Shell<'a> {
         "interrupt",
         ShellCommand {
             help: "cause a timer interrupt",
-            func: |_, _| crate::timer::set_interrupt(0),
+            func: |_, _| crate::timer::set_interrupt(100000),
             aliases: &[],
         },
     );

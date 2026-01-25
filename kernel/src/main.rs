@@ -18,7 +18,7 @@ mod timer;
 mod util;
 
 use alloc::{boxed::Box, string::String, vec, vec::Vec};
-use riscv_rt::entry;
+use riscv_rt::{core_interrupt, entry};
 use tasks::Fuse;
 
 // the entry point of the kernel, this is only called by hart 0.
@@ -35,6 +35,9 @@ fn main(a0: usize, a1: usize, a2: usize) -> ! {
 
     // Setup everything required for the kernel to run
     unsafe {
+        riscv::register::sie::set_stimer();
+        riscv::register::sstatus::set_sie();
+
         // initialize the kernel heap allocator, alloc is now available
         mem::heap_alloc::init_kernel_heap();
         println!(">>> kernel heap initialized");
