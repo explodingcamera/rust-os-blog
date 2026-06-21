@@ -50,10 +50,9 @@ pub trait FrameAllocator {
     fn alloc_multiple(&mut self, pages: usize) -> Option<Vec<PhysPageNum>> {
         let mut v = Vec::new();
         for _ in 0..pages {
-            if let Some(ppn) = self.alloc() {
+            {
+                let ppn = self.alloc()?;
                 v.push(ppn);
-            } else {
-                return None;
             }
         }
         Some(v)

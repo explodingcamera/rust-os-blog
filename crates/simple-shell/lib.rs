@@ -159,11 +159,9 @@ impl<'a> Shell<'a> {
                     self.cursor += 1;
                 }
             }
-            CSI_LEFT => {
-                if self.cursor > 0 {
-                    print!(self.write, "\x1b[1D");
-                    self.cursor -= 1;
-                }
+            CSI_LEFT if self.cursor > 0 => {
+                print!(self.write, "\x1b[1D");
+                self.cursor -= 1;
             }
             _ => {}
         }

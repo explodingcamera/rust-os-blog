@@ -6,16 +6,16 @@ version="0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-buddy_system_allocator="0.12"
+buddy_system_allocator="0.13"
 fdt-rs={version="0.4", default-features=false, features=["alloc"]}
 pasts={version="0.14", default-features=false}
 riscv={version="0.16"}
-riscv-rt={version="0.17", features=["s-mode"]}
+riscv-rt={version="0.18", features=["s-mode"]}
 sbi="0.3"
 
 critical-section={version="1.2", default-features=false}
 portable-atomic={version="1.13", default-features=false, features=["critical-section"]}
-spin={version="0.10", features=["portable_atomic"]}
+spin={version="0.12", features=["portable_atomic"]}
 
 linear-allocator={path="../crates/linear-allocator"}
 simple-shell={path="../crates/simple-shell"}

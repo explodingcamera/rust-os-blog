@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(allocator_api)]
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr::NonNull;
