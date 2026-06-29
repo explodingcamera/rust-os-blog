@@ -1,8 +1,8 @@
 [package]
-edition="2021"
+edition="2024"
 name="kernel"
 version="0.1.0"
 
 [dependencies]
-riscv-rt={version="0.12", features=["s-mode"]}
-sbi="0.2"
+riscv-rt={version="0.18", features=["s-mode"]}
+sbi="0.3"

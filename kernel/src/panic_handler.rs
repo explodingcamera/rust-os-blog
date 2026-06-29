@@ -1,5 +1,5 @@
 use crate::println;
-use core::{hint::unreachable_unchecked, panic::PanicInfo};
+use core::panic::PanicInfo;
 use sbi::system_reset::{ResetReason, ResetType};
 
 #[panic_handler]
