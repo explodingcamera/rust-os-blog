@@ -1,9 +1,7 @@
 [workspace]
-members=["kernel", "crates/*"]
-default-members=["kernel"]
-resolver="3"
+resolver = "3"
+members = ["crates/*", "kernel"]
+default-members = ["kernel"]
 
 [workspace.package]
-edition="2024"
-license="MIT OR Apache-2.0"
-rust-version="1.96"
+license = "MIT OR Apache-2.0"

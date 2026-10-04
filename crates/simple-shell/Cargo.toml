@@ -1,16 +1,16 @@
 [package]
-description="A simple no_std shell for embedded systems"
-edition="2024"
-homepage="https://github.com/explodingcamera/pogos/tree/main/crates/simple-shell"
-license="MIT OR Apache-2.0"
-name="simple-shell"
-repository="https://github.com/explodingcamera/pogos.git"
-version="0.0.1"
+name = "simple-shell"
+version = "0.0.1"
+edition = "2024"
+description = "A simple no_std shell for embedded systems"
+homepage = "https://github.com/explodingcamera/pogos/tree/main/crates/simple-shell"
+repository = "https://github.com/explodingcamera/pogos.git"
+license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name="simple_shell"
-path="lib.rs"
+name = "simple_shell"
+path = "lib.rs"
 
 [dependencies]

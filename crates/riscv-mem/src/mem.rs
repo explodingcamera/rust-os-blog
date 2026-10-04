@@ -1,3 +1,4 @@
+use crate::PAGE_SIZE;
 use crate::address::PhysPageNum;
 use crate::address::StepByOne;
 use crate::address::VPNRange;
@@ -8,7 +9,6 @@ use crate::frame_allocator::FrameTracker;
 use crate::page::PTEFlags;
 use crate::page::PageTable;
 use crate::page::PageTableEntry;
-use crate::PAGE_SIZE;
 use alloc::collections::BTreeMap;
 use alloc::vec::Vec;
 use bitflags::bitflags;
