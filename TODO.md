@@ -1,7 +1,0 @@
-- use buddy_system_allocator for heap allocation inside the kernel
-- async/await inside the kernel (pretty much cooperative multitasking) [1](https://www.reddit.com/r/rust/comments/v9qgo8/pasts_a_nostd_compatible_async_runtime/)
-- [wip @ crates/riscv-mem] create page table for user processes (SV39) [1](https://github.com/betrusted-io/xous-core/blob/main/docs/memory.md) [2](https://github.com/betrusted-io/xous-core/blob/main/kernel/src/mem.rs) [3](https://github.com/Ko-oK-OS/xv6-rust/tree/main/kernel/src/memory) [4](https://github.com/skyzh/core-os-riscv/blob/master/kernel/src/mem.rs)
-- interrupt handling [1](https://github.com/r3-os/r3/blob/%F0%9F%A6%86/src/r3_port_riscv/src/lib.md)
-- implement userland multitasking
-- implement user processes
-- syscall interface

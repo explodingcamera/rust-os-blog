@@ -1,12 +1,5 @@
-# License
+## License
 
-This project is licensed under either of the following licenses, at your option:
+Licensed under either of [Apache License, Version 2.0](./LICENSE-APACHE) or [MIT license](./LICENSE-MIT) at your option.
 
-- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT License ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-Some code in the `crates/riscv-mem` directory is licensed under the GPL-3.0 license. See the [LICENSE.md](crates/riscv-mem/LICENSE.md) file for details.
-
-<!--
-> talc allocator! https://github.com/hermit-os/kernel/blob/main/src/mm/allocator.rs
-> hermit sync! https://github.com/hermit-os/hermit-sync -->
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
