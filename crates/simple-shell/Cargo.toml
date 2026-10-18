@@ -1,17 +1,11 @@
 [package]
 name = "simple-shell"
-version = "0.0.1"
+version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 description = "A simple no_std shell for embedded systems"
-homepage = "https://github.com/explodingcamera/pogos/tree/main/crates/simple-shell"
-repository = "https://github.com/explodingcamera/pogos.git"
+homepage = "https://github.com/explodingcamera/osmium/tree/main/crates/simple-shell"
+repository = "https://github.com/explodingcamera/osmium"
 license.workspace = true
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lib]
-name = "simple_shell"
-path = "lib.rs"
 
 [dependencies]

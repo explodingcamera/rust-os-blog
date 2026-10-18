@@ -1,43 +1,85 @@
+//! A simple polling-based `no_std` shell for embedded systems.
+//!
+//! Pass [`Shell::new`] functions for writing text and reading bytes, then
+//! register commands in [`Shell::commands`] or with [`Shell::with_commands`].
+//! Use [`Shell::run`] for a blocking loop or [`Shell::run_async`] in an async
+//! context.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use simple_shell::{Shell, ShellCommand};
+//!
+//! fn run_shell() {
+//!     // Replace these with your console I/O functions.
+//!     let (write, read) = (|text: &str| print!("{text}"), || None);
+//!
+//!     let mut shell = Shell::new(write, read).with_commands([(
+//!         "help",
+//!         ShellCommand {
+//!             help: "print this help message",
+//!             func: |_, shell| {
+//!                 shell.print_help_screen();
+//!                 Ok(())
+//!             },
+//!             aliases: &["?", "h"],
+//!         },
+//!     )]);
+//!
+//!     shell.run();
+//! }
+//! ```
 #![no_std]
 extern crate alloc;
 
-use alloc::{
-    collections::BTreeMap,
-    string::{String, ToString},
-    vec::Vec,
-};
+use alloc::{collections::BTreeMap, string::String, vec::Vec};
+use core::{future::poll_fn, task::Poll};
 
 mod constants;
-mod reader;
 mod writer;
 use constants::*;
-use reader::*;
 use writer::*;
 
+/// A command registered with a [`Shell`].
+///
+/// The handler receives whitespace-separated arguments, excluding the command
+/// name. It can return an error message to print.
 #[derive(Clone, Copy)]
 pub struct ShellCommand<'a> {
+    /// Description shown by [`Shell::print_help_screen`].
     pub help: &'a str,
+    /// Handler for the command. Errors are printed with the command name.
     pub func: fn(&[&str], &mut Shell<'a>) -> Result<(), &'a str>,
+    /// Alternative names for the command.
     pub aliases: &'a [&'a str],
 }
 
+/// An interactive command shell.
 pub struct Shell<'a> {
+    /// Submitted input lines, including empty lines.
     pub history: Vec<String>,
+    /// Commands keyed by their primary names.
     pub commands: BTreeMap<&'a str, ShellCommand<'a>>,
+    /// Current input line.
     pub command: String,
+    /// Byte offset of the cursor within the current input line.
     pub cursor: usize,
-    write: Writer,
+
+    write: ShellWriter,
     read: fn() -> Option<u8>,
 }
 
 impl<'a> Shell<'a> {
+    /// Creates a shell with output and input functions.
+    ///
+    /// `read` should return `None` when no byte is available.
     pub fn new(write: fn(&str), read: fn() -> Option<u8>) -> Self {
         Self {
             history: Vec::new(),
             commands: BTreeMap::new(),
             command: String::new(),
             cursor: 0,
-            write: Writer::new(write),
+            write: ShellWriter::new(write),
             read,
         }
     }
@@ -51,14 +93,26 @@ impl<'a> Shell<'a> {
     }
 
     async fn get_char_async(&mut self) -> u8 {
-        (Reader::new(self.read)).await
+        poll_fn(|cx| match (self.read)() {
+            Some(c) => Poll::Ready(c),
+            None => {
+                cx.waker().wake_by_ref();
+                Poll::Pending
+            }
+        })
+        .await
     }
 
-    pub fn with_commands(mut self, mut commands: BTreeMap<&'a str, ShellCommand<'a>>) -> Self {
-        self.commands.append(&mut commands);
+    /// Adds commands, replacing existing commands with the same name.
+    pub fn with_commands(
+        mut self,
+        commands: impl IntoIterator<Item = (&'a str, ShellCommand<'a>)>,
+    ) -> Self {
+        self.commands.extend(commands);
         self
     }
 
+    /// Runs the shell in a blocking loop.
     pub fn run(&mut self) {
         self.print_prompt();
 
@@ -71,6 +125,9 @@ impl<'a> Shell<'a> {
         }
     }
 
+    /// Runs the shell in an async context.
+    ///
+    /// If `read` returns `None`, the shell wakes itself to poll again.
     pub async fn run_async(&mut self) {
         self.print_prompt();
 
@@ -85,7 +142,7 @@ impl<'a> Shell<'a> {
 
     fn match_char(&mut self, b: u8) {
         match b {
-            CTRL_C => self.process_command("exit".to_string()),
+            CTRL_C => self.process_command("exit"),
             CTRL_L => self.handle_clear(),
             ENTER => self.handle_enter(),
             BACKSPACE => self.handle_backspace(),
@@ -117,7 +174,7 @@ impl<'a> Shell<'a> {
         if self.cursor > 0 {
             self.command.remove(self.cursor - 1);
             self.cursor -= 1;
-            print!(self.write, "\x08"); // Move cursor left
+            self.write.print(ASCII_BACKSPACE); // Move cursor left
             print!(self.write, "{}", &self.command[self.cursor..]); // Print the remaining text
             print!(self.write, " "); // Clear last character
             print!(self.write, "\x1b[{}D", self.command.len() - self.cursor + 1);
@@ -127,7 +184,8 @@ impl<'a> Shell<'a> {
 
     fn handle_enter(&mut self) {
         println!(self.write, "");
-        self.process_command(self.command.clone());
+        let command = self.command.clone();
+        self.process_command(&command);
         self.history.push(self.command.clone());
         self.command.clear();
         self.cursor = 0;
@@ -138,7 +196,7 @@ impl<'a> Shell<'a> {
             return;
         }
         let b = self.get_char_async().await;
-        self._handle_escape(b);
+        self.handle_csi_key(b);
     }
 
     fn handle_escape(&mut self) {
@@ -146,28 +204,28 @@ impl<'a> Shell<'a> {
             return;
         }
         let b = self.get_char();
-        self._handle_escape(b);
+        self.handle_csi_key(b);
     }
 
-    fn _handle_escape(&mut self, b: u8) {
+    fn handle_csi_key(&mut self, b: u8) {
         match b {
             CSI_UP => {}
             CSI_DOWN => {}
             CSI_RIGHT => {
                 if self.cursor < self.command.len() {
-                    print!(self.write, "\x1b[1C");
+                    self.write.print(ANSI_CURSOR_RIGHT);
                     self.cursor += 1;
                 }
             }
             CSI_LEFT if self.cursor > 0 => {
-                print!(self.write, "\x1b[1D");
+                self.write.print(ANSI_CURSOR_LEFT);
                 self.cursor -= 1;
             }
             _ => {}
         }
     }
 
-    fn process_command(&mut self, command: String) {
+    fn process_command(&mut self, command: &str) {
         let mut args = command.split_whitespace();
         let command = args.next().unwrap_or("");
         let args = args.collect::<Vec<_>>();
@@ -187,6 +245,7 @@ impl<'a> Shell<'a> {
         println!(self.write, "{}: command not found", command);
     }
 
+    /// Prints the registered commands, their descriptions, and aliases.
     pub fn print_help_screen(&mut self) {
         println!(self.write, "available commands:");
         for (name, command) in &self.commands {
@@ -198,11 +257,13 @@ impl<'a> Shell<'a> {
         }
     }
 
+    /// Prints the `> ` prompt.
     pub fn print_prompt(&mut self) {
         print!(self.write, "> ");
     }
 
+    /// Sends ANSI escape sequences to clear the screen and move the cursor home.
     pub fn clear_screen(&mut self) {
-        print!(self.write, "\x1b[2J\x1b[1;1H");
+        self.write.print(ANSI_CLEAR_SCREEN);
     }
 }

@@ -9,3 +9,8 @@ pub const CSI_UP: u8 = 65;
 pub const CSI_DOWN: u8 = 66;
 pub const CSI_RIGHT: u8 = 67;
 pub const CSI_LEFT: u8 = 68;
+
+pub const ASCII_BACKSPACE: &str = "\x08";
+pub const ANSI_CURSOR_RIGHT: &str = "\x1b[1C";
+pub const ANSI_CURSOR_LEFT: &str = "\x1b[1D";
+pub const ANSI_CLEAR_SCREEN: &str = "\x1b[2J\x1b[1;1H";

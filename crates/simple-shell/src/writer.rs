@@ -1,17 +1,17 @@
 use core::fmt::Write;
 
-pub(crate) struct Writer {
+pub(crate) struct ShellWriter {
     print: fn(&str),
 }
 
-impl core::fmt::Write for Writer {
+impl core::fmt::Write for ShellWriter {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
         (self.print)(s);
         Ok(())
     }
 }
 
-impl Writer {
+impl ShellWriter {
     pub fn new(print: fn(&str)) -> Self {
         Self { print }
     }
