@@ -5,14 +5,15 @@ use riscv::asm;
 use simple_shell::{Shell, ShellCommand};
 
 use crate::{
-    ksched, print, println,
-    util::{self, Result, SBIConsole},
+    Result, print, println,
+    sbi::{self, SBIConsole},
+    scheduler,
 };
 
-pub async fn shell_task() -> ksched::TaskResult {
+pub async fn shell_task() -> scheduler::TaskResult {
     let mut shell = create_shell();
     shell.run_async().await;
-    ksched::TaskResult::Exit
+    scheduler::TaskResult::Exit
 }
 
 pub fn create_shell<'a>() -> Shell<'a> {
@@ -37,7 +38,7 @@ pub fn create_shell<'a>() -> Shell<'a> {
             help: "shutdown the system",
             func: |_, _| {
                 println!("\nshutting down the system");
-                util::shutdown();
+                sbi::shutdown();
             },
             aliases: &["sd", "exit", "quit"],
         },
@@ -49,7 +50,7 @@ pub fn create_shell<'a>() -> Shell<'a> {
             help: "reboot the system",
             func: |_, _| {
                 println!("\nrebooting the system");
-                util::reboot();
+                sbi::reboot();
             },
             aliases: &[],
         },
@@ -107,7 +108,7 @@ pub fn create_shell<'a>() -> Shell<'a> {
         "interrupt",
         ShellCommand {
             help: "cause a timer interrupt",
-            func: |_, _| crate::timer::set_interrupt(100000),
+            func: |_, _| crate::interrupt::set_interrupt(100000),
             aliases: &[],
         },
     );
@@ -117,7 +118,7 @@ pub fn create_shell<'a>() -> Shell<'a> {
         ShellCommand {
             help: "print the device tree",
             func: |_, _| {
-                crate::dtb::print_dtb();
+                crate::device_tree::print_dtb();
                 Ok(())
             },
             aliases: &["dt"],

@@ -1,5 +1,6 @@
 MEMORY
 {
+  /* Linker space for the boot image, not the machine's total RAM. */
   RAM : ORIGIN = 0x80200000, LENGTH = 16M
 }
 
@@ -10,15 +11,14 @@ REGION_ALIAS("REGION_BSS", RAM);
 REGION_ALIAS("REGION_HEAP", RAM);
 REGION_ALIAS("REGION_STACK", RAM);
 
-/* _memory_start = ORIGIN(RAM); */
+/* riscv-rt reserves .heap using _heap_size. Leave a page on each side. */
+_heap_size = 128K + 12K; /* Includes alignment space before the first guard. */
+_heap_guard_start = ALIGN(__sheap, 4K);
+_heap_start = _heap_guard_start + 4K;
+_heap_guard_end = _heap_start + 128K;
 
-pog_memory_end = ORIGIN(RAM) + LENGTH(RAM);
-pog_etext = ADDR(.text) + SIZEOF(.text);
-pog_srodata = ADDR(.rodata);
-pog_erodata = ADDR(.rodata) + SIZEOF(.rodata);
+/* Leave an unmapped page below the 16 KiB boot stack. */
+_stack_guard_start = ALIGN(__estack, 4K);
+_stack_start = _stack_guard_start + 4K + 16K;
 
-/* PROVIDE(_stext = ORIGIN(REGION_TEXT));
-PROVIDE(_stack_start = ORIGIN(REGION_STACK) + LENGTH(REGION_STACK));
-PROVIDE(_max_hart_id = 0);
-PROVIDE(_hart_stack_size = 2K);
-PROVIDE(_heap_size = 0); */
+ASSERT(_heap_guard_end + 4K <= __eheap, "boot heap guard exceeds reserved heap");

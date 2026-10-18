@@ -5,21 +5,19 @@
 extern crate alloc;
 extern crate riscv_rt;
 
-mod panic_handler;
-mod trap;
+mod interrupt;
 
-mod dtb;
-mod io;
-mod ksched;
+mod device_tree;
 mod mem;
-mod symbols;
+mod sbi;
+mod scheduler;
 mod tasks;
-mod timer;
-mod util;
 
 use alloc::{boxed::Box, string::String, vec, vec::Vec};
 use riscv_rt::{core_interrupt, entry};
 use tasks::Fuse;
+
+pub type Result<T> = core::result::Result<T, &'static str>;
 
 // the entry point of the kernel, this is only called by hart 0.
 // the other harts are busy looping
@@ -31,23 +29,31 @@ fn main(a0: usize, a1: usize, a2: usize) -> ! {
     println!();
 
     // initialize the device tree
-    dtb::init(a1);
+    device_tree::init(a1);
 
     // Setup everything required for the kernel to run
-    unsafe {
-        riscv::register::sie::set_stimer();
-        riscv::register::sstatus::set_sie();
+    unsafe { mem::heap_alloc::init_kernel_heap() };
+    println!(">>> kernel heap initialized");
 
-        // initialize the kernel heap allocator, alloc is now available
-        mem::heap_alloc::init_kernel_heap();
-        println!(">>> kernel heap initialized");
-    }
+    unsafe { mem::boot_paging::init(a1) };
+    println!(">>> kernel paging enabled");
 
-    println!("kernel initialized, starting kschedule\n");
+    interrupt::init();
+    println!(">>> timer interrupts enabled");
 
-    ksched::KernelScheduler::new()
-        .with_task(ksched::Task::new(tasks::shell_task(), 0))
+    println!(">>> starting scheduler");
+    scheduler::KernelScheduler::new()
+        .with_task(scheduler::Task::new(tasks::shell_task(), 0))
         .block_on_run();
 
-    util::shutdown()
+    sbi::shutdown()
+}
+
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    println!("{info}");
+    sbi::reset(
+        sbi_spec::srst::RESET_TYPE_SHUTDOWN,
+        sbi_spec::srst::RESET_REASON_SYSTEM_FAILURE,
+    )
 }

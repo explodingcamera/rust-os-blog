@@ -2,7 +2,7 @@
 target="riscv64gc-unknown-none-elf"
 
 [target.riscv64gc-unknown-none-elf]
-runner="qemu-system-riscv64 -smp 2 -m 2G -machine virt -nographic -serial mon:stdio -kernel"
+runner="qemu-system-riscv64 -smp 1 -m 2G -machine virt -nographic -serial mon:stdio -kernel"
 rustflags=["-C", "link-arg=-Tmemory.x", "-C", "link-arg=-Tlink.x"]
 
 [unstable]

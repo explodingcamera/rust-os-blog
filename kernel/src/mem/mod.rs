@@ -1,2 +1,3 @@
+pub mod boot_paging;
 pub mod heap_alloc;
-pub mod map_kernel;
+pub mod paging;
